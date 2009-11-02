@@ -45,9 +45,13 @@ public class PageInfo implements Serializable {
 
 	public PageInfo(int page, int count) {
 		rowsPerPage = PAGESIZE;
-		curPage = page;
 		maxRowCount = count;
 		maxPage = ((maxRowCount + rowsPerPage) - 1) / rowsPerPage;
+		if (page < 1)
+			page = 1;
+		if (page > maxPage)
+			page = maxPage;
+		curPage = page;
 	}
 
 	public String getHtml(String servletURL) {

@@ -72,7 +72,7 @@
 		<td>salary</td>
         <td>pic</td>
 	</tr>
-<c:forEach items="${list}" var="item">
+<c:forEach items="${plist.list}" var="item">
 	<tr align="center">
 		<td><input type="checkbox" name="check" value="${item.id}"></td>
 		<td>${item.name }</td>

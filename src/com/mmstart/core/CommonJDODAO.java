@@ -4,6 +4,11 @@ import java.util.List;
 
 import javax.jdo.PersistenceManager;
 
+import com.google.appengine.api.datastore.DatastoreService;
+import com.google.appengine.api.datastore.DatastoreServiceFactory;
+import com.google.appengine.api.datastore.FetchOptions;
+import com.google.appengine.api.datastore.Query;
+
 public class CommonJDODAO {
 	public void save(Object entity) {
 		PersistenceManager pm = PMF.get().getPersistenceManager();
@@ -26,7 +31,7 @@ public class CommonJDODAO {
 
 	public List<?> findAll(final Class<?> entityClass) {
 		PersistenceManager pm = PMF.get().getPersistenceManager();
-		List<?> list =  (List<?>) pm.detachCopyAll((List<?>)pm.newQuery(entityClass).execute());
+		List<?> list = (List<?>) pm.detachCopyAll((List<?>) pm.newQuery(entityClass).execute());
 		pm.close();
 		return list;
 	}
@@ -38,60 +43,38 @@ public class CommonJDODAO {
 		return list;
 	}
 
-	public PageList findAll(final Class<?> entityClass, final int page) {
-		// return (PageList) getHibernateTemplate().execute(new
-		// HibernateCallback() {
-		// public Object doInHibernate(Session session) throws
-		// HibernateException, SQLException {
-		// Criteria c = session.createCriteria(entityClass);
-		// PageInfo pi = new PageInfo(page, c.list().size());
-		// c.setFirstResult(PageInfo.PAGESIZE * (page -
-		// 1)).setMaxResults(PageInfo.PAGESIZE);
-		// return new PageList(pi, c.list());
-		// }
-		// });
-		return null;
+	public PageList findAll(Class<?> entityClass, int page) {
+		PageInfo pi = new PageInfo(page, getCount(entityClass));
+		PersistenceManager pm = PMF.get().getPersistenceManager();
+		javax.jdo.Query q = pm.newQuery(entityClass);
+		q.setRange(PageInfo.PAGESIZE * (pi.curPage - 1), PageInfo.PAGESIZE * pi.curPage);// begin,end
+		List<?> list = (List<?>) pm.detachCopyAll((List<?>) q.execute());
+		pm.close();
+		return new PageList(pi, list);
 	}
 
-	public PageList findAll(final Class<?> entityClass, final int page, final List<Param> params, final List<Ord> ords) {
-		// return (PageList) getHibernateTemplate().execute(new
-		// HibernateCallback() {
-		// public Object doInHibernate(Session session) throws
-		// HibernateException, SQLException {
-		// Criteria c = session.createCriteria(entityClass);
-		// for (Param param : params) {
-		// c.add(Restrictions.like(param.getCol(), param.getValue()));
-		// }
-		// PageInfo pi = new PageInfo(page,
-		// (Integer)c.setProjection(Projections.rowCount()).uniqueResult());
-		// c.setProjection(null);
-		// for (Ord ord : ords) {
-		// if (ord.getAscending())
-		// c.addOrder(Order.asc(ord.getCol()));
-		// else
-		// c.addOrder(Order.desc(ord.getCol()));
-		// }
-		// c.setFirstResult(PageInfo.PAGESIZE * (page -
-		// 1)).setMaxResults(PageInfo.PAGESIZE);
-		// return new PageList(pi, c.list());
-		// }
-		// });
-		return null;
+	public int getCount(Class<?> entityClass) {
+		DatastoreService ds = DatastoreServiceFactory.getDatastoreService();
+		Query query = new Query(entityClass.getSimpleName());
+		query.setKeysOnly();
+		return ds.prepare(query).asList(FetchOptions.Builder.withOffset(0)).size();
 	}
 
-	public PageList findByHQL(final String hql, final int page) {
-		// PageInfo pi = new PageInfo(page,
-		// getHibernateTemplate().find(hql).size());
-		// List<?> list = getHibernateTemplate().executeFind(new
-		// HibernateCallback() {
-		// public Object doInHibernate(Session session) throws
-		// HibernateException, SQLException {
-		// Query query = session.createQuery(hql);
-		// return query.setFirstResult(PageInfo.PAGESIZE * (page -
-		// 1)).setMaxResults(PageInfo.PAGESIZE).list();
-		// }
-		// });
-		// return new PageList(pi, list);
-		return null;
+	public PageList findByJDOQL(String jdoql, int page) {
+		PageInfo pi = new PageInfo(page, getCount(jdoql));
+		PersistenceManager pm = PMF.get().getPersistenceManager();
+		javax.jdo.Query q = pm.newQuery(jdoql);
+		q.setRange(PageInfo.PAGESIZE * (pi.curPage - 1), PageInfo.PAGESIZE * pi.curPage);// begin,end
+		List<?> list = (List<?>) pm.detachCopyAll((List<?>) q.execute());
+		pm.close();
+		return new PageList(pi, list);
+	}
+
+	public int getCount(String jdoql) {
+		PersistenceManager pm = PMF.get().getPersistenceManager();
+		javax.jdo.Query q = pm.newQuery(jdoql);
+		int count = ((List<?>) q.execute()).size();
+		pm.close();
+		return count;
 	}
 }
