@@ -10,59 +10,13 @@
 	<meta http-equiv="Pragma" content="no-cache" />
 	<meta http-equiv="Expires" content="0" />
 	<script type="text/javascript">
-    var win;
-    Ext.onReady(function(){
-	var tb = new Ext.Toolbar({renderTo:'toolbar'});
-	tb.add({text: '新建',cls: 'x-btn-text-icon add',handler: onAddClick});
-	tb.add({text: '修改',cls: 'x-btn-text-icon update',handler: onUpdateClick});
-    tb.add({text: '删除',cls: 'x-btn-text-icon delete',handler: onDeleteClick});
-    if(!win){
-        win = new Ext.Window({
-        	el:'dlg',width:213,autoHeight:true,closeAction:'hide',
-	        buttons: [
-	        {text:'提交',handler: function(){Ext.getDom('dataForm').action='success.jsp'; Ext.getDom('dataForm').submit();}},
-	        {text:'关闭',handler: function(){win.hide();}}
-	        ]
-        });
-    }
-    
-    function onAddClick(btn){
-	  win.setTitle('增加');
-      Ext.getDom('dataForm').reset();
-      win.show(btn.dom);
-	}
-	
-	function onUpdateClick(btn){
-	  var selValue = Ext.DomQuery.selectValue('input[name=check]:checked/@value');
-	  if(selValue==undefined) {
-			alert('请选择数据项！');
-			return false;
-      }
-      Ext.get('username').set({'value':'admin'});
-      Ext.get('password').set({'value':'*****'});
-      Ext.get('role').set({'value':'1'});
-      win.setTitle('修改');
-      win.show(btn.dom);
-	}
-	
-	function onDeleteClick(btn){
-	  var selValue = Ext.DomQuery.selectValue('input[name=check]:checked/@value');
-	  if(selValue==undefined) {
-			alert('请选择数据项！');
-			return false;
-      }
-	  Ext.Msg.confirm('确认','确实要删除记录么？',function(btn){
-    	if(btn=='yes'){
-          window.location.href('success.jsp');
-    	}
-      });
-	}
-});
 </script>
 </head>
 <body>
 <h1>系统用户</h1>
 <div id="toolbar"></div>
+<form id="listForm" name="listForm" action="" method="post">
+${plist.pageInfo.html}
 <table width="98%" id="the-table" align="center">
 	<tr bgcolor="#E0F1F8" align="center" class="b_tr">
 		<td>选择</td>
@@ -83,6 +37,7 @@
 	</tr>
 </c:forEach>			
 </table>
+</form>
 <div id="dlg" class="x-hidden">
 	<div class="x-window-header">Dialog</div>
 	<div class="x-window-body" id="dlg-body">

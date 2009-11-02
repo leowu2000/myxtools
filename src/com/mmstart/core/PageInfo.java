@@ -10,6 +10,7 @@ public class PageInfo implements Serializable {
 	int maxPage;
 	int maxRowCount;
 	int rowsPerPage;
+	private String html;
 
 	public int getCurPage() {
 		return curPage;
@@ -66,25 +67,25 @@ public class PageInfo implements Serializable {
 		sb.append("&nbsp;&nbsp;&nbsp;<span>共" + maxRowCount + "条" + maxPage + "页，" + rowsPerPage + "条/页；当前页：" + curPage
 				+ "。</span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;");
 		if (curPage > 1) {
-			sb.append("<A HREF=\"javascript:submitTo('" + servletURL + "&page=1','" + formName + "');\" >首页</A>&nbsp;");
-			sb.append("<A HREF=\"javascript:submitTo('" + servletURL + "&page=" + (curPage - 1) + "','" + formName
+			sb.append("<A HREF=\"javascript:submitTo('" + servletURL + "?page=1','" + formName + "');\" >首页</A>&nbsp;");
+			sb.append("<A HREF=\"javascript:submitTo('" + servletURL + "?page=" + (curPage - 1) + "','" + formName
 					+ "');\" >上页</A>&nbsp;");
 		} else {
 			sb.append("首页&nbsp;");
 			sb.append("上页&nbsp;");
 		}
 		if (curPage < maxPage) {
-			sb.append("<A HREF=\"javascript:submitTo('" + servletURL + "&page=" + (curPage + 1) + "','" + formName
+			sb.append("<A HREF=\"javascript:submitTo('" + servletURL + "?page=" + (curPage + 1) + "','" + formName
 					+ "');\" >下页</A>&nbsp;");
-			sb.append("<A HREF=\"javascript:submitTo('" + servletURL + "&page=" + maxPage + "','" + formName
+			sb.append("<A HREF=\"javascript:submitTo('" + servletURL + "?page=" + maxPage + "','" + formName
 					+ "');\" >尾页</A>&nbsp;");
 		} else {
 			sb.append("下页&nbsp;");
 			sb.append("尾页&nbsp;");
 		}
 		sb.append("转到");
-		sb.append("<select id=\"page\" name=\"page\" class=\"TextStyle\" onchange=\"javascript:submitTo('" + servletURL
-				+ "&page='+document.getElementById('page').value,'" + formName + "')\" >");
+		sb.append("<select class=\"TextStyle\" onchange=\"javascript:submitTo('" + servletURL
+				+ "?page='+this.value,'" + formName + "')\" >");
 		sb.append(getPageOptions(maxPage, curPage) + "</select></div>");
 		return sb.toString();
 	}
@@ -94,5 +95,13 @@ public class PageInfo implements Serializable {
 		for (int i = 1; i <= maxPage; i++)
 			sb.append("<option value='" + i + "' " + (i == curPage ? "selected" : "") + ">第" + i + "页</option>");
 		return sb.toString();
+	}
+
+	public String getHtml() {
+		return html;
+	}
+
+	public void setHtml(String url) {
+		this.html = getHtml(url);
 	}
 }
